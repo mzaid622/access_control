@@ -6,30 +6,31 @@ from .models import Room, Employee
 # Store employee last access history in memory
 history = {}
 
+from datetime import datetime, date
+
 def check_access(emp):
-    # Room rules
     rules = {
         "serverroom": {"level": 2, "open": "09:00", "close": "11:00", "cooldown": 15},
         "vault": {"level": 3, "open": "09:00", "close": "10:00", "cooldown": 30},
         "r&d lab": {"level": 1, "open": "08:00", "close": "12:00", "cooldown": 10},
     }
 
-    # Normalize input
-    room_key = emp.room.strip().lower()
-
+    room_key = emp.room.name.strip().lower()
     rule = rules.get(room_key)
     if not rule:
-        return "Denied", f"Invalid room ({emp.room})"
+        return "Denied", f"Invalid room ({emp.room.name})"
 
     # 1. Check access level
     if emp.access_level < rule["level"]:
         return "Denied", f"Requires level {rule['level']}"
 
-    # 2. Check room time window
-    request_time = emp.request_time
-    open_time = datetime.strptime(rule["open"], "%H:%M").time()
-    close_time = datetime.strptime(rule["close"], "%H:%M").time()
-    if not (open_time <= request_time.time() <= close_time):
+    # Convert to datetime for comparison
+    request_time = datetime.combine(date.today(), emp.request_time)
+    open_time = datetime.combine(date.today(), datetime.strptime(rule["open"], "%H:%M").time())
+    close_time = datetime.combine(date.today(), datetime.strptime(rule["close"], "%H:%M").time())
+
+    # 2. Check room open/close time
+    if not (open_time <= request_time <= close_time):
         return "Denied", "Room closed at this time"
 
     # 3. Check cooldown
@@ -42,7 +43,9 @@ def check_access(emp):
 
     # If granted, update history
     history[key] = request_time
-    return "Granted", f"Access granted to {emp.room}"
+    return "Granted", f"Access granted to {emp.room.name}"
+
+
 
 
 
