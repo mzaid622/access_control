@@ -6,6 +6,8 @@
 <body>
     <h1>Employee Access Simulator</h1>
 
+    <!-- Employee list -->
+    <h2>Employees</h2>
     <table border="1">
         <thead>
             <tr>
@@ -13,22 +15,53 @@
                 <th>Access Level</th>
                 <th>Request Time</th>
                 <th>Room</th>
-                <th>Status</th>
-                <th>Reason</th>
             </tr>
         </thead>
         <tbody>
-            {% for emp in results %}
+            {% for emp in employees %}
             <tr>
-                <td>{{ emp.id }}</td>
+                <td>{{ emp.emp_id }}</td>
                 <td>{{ emp.access_level }}</td>
                 <td>{{ emp.request_time }}</td>
-                <td>{{ emp.room }}</td>
-                <td>{{ emp.status }}</td>
-                <td>{{ emp.reason }}</td>
+                <td>{{ emp.room.name }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- Simulate button -->
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Simulate Access</button>
+    </form>
+
+    <!-- Results shown only after clicking -->
+    {% if results %}
+        <h2>Simulation Results</h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Access Level</th>
+                    <th>Request Time</th>
+                    <th>Room</th>
+                    <th>Status</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in results %}
+                <tr>
+                    <td>{{ emp.id }}</td>
+                    <td>{{ emp.access_level }}</td>
+                    <td>{{ emp.request_time }}</td>
+                    <td>{{ emp.room }}</td>
+                    <td>{{ emp.status }}</td>
+                    <td>{{ emp.reason }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 </body>
 </html>

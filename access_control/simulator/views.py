@@ -45,25 +45,26 @@ def check_access(emp):
     history[key] = request_time
     return "Granted", f"Access granted to {emp.room.name}"
 
-
-
-
-
 def index(request):
-    employees = Employee.objects.all()
+    employees = Employee.objects.all().order_by("request_time")
     results = []
 
-    for emp in employees:
-        status, reason = check_access(emp)
-        results.append({
-            "id": emp.emp_id,
-            "access_level": emp.access_level,
-            "request_time": emp.request_time.strftime("%H:%M"),
-            "room": emp.room,
-            "status": status,
-            "reason": reason,
-        })
+    if request.method == "POST":  # Only simulate after button click
+        history.clear()  # reset cooldown history
+        for emp in employees:
+            status, reason = check_access(emp)
+            results.append({
+                "id": emp.emp_id,
+                "access_level": emp.access_level,
+                "request_time": emp.request_time.strftime("%H:%M"),
+                "room": emp.room.name,
+                "status": status,
+                "reason": reason,
+            })
 
-    # 👇 render index.html
-    return render(request, "simulator/index.html", {"results": results})
+    return render(request, "simulator/index.html", {
+        "employees": employees,
+        "results": results,
+    })
+
 
